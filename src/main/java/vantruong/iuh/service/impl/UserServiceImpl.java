@@ -1,6 +1,8 @@
 package vantruong.iuh.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vantruong.iuh.dto.request.UserCreationRequest;
@@ -41,6 +43,9 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toUser(request);
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         // Assign default role ROLE_CUSTOMER
         Set<Role> roles = new HashSet<>();

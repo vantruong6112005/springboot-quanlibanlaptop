@@ -26,7 +26,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handlingAppException(AppException exception) {
         BaseErrorCode errorCode = exception.getErrorCode();
         ApiResponse<?> apiResponse = ApiResponse.builder()
-                .code(errorCode.getStatusCode().value())
                 .message(exception.getMessage())
                 .build();
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
@@ -36,7 +35,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handlingValidationException(MethodArgumentNotValidException exception) {
         String message = exception.getBindingResult().getFieldError().getDefaultMessage();
         ApiResponse<?> apiResponse = ApiResponse.builder()
-                .code(400)
                 .message(message)
                 .build();
         return ResponseEntity.badRequest().body(apiResponse);
@@ -45,7 +43,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<ApiResponse<?>> handlingException(Exception exception) {
         ApiResponse<?> apiResponse = ApiResponse.builder()
-                .code(500)
                 .message("Internal server error: " + exception.getMessage())
                 .build();
         return ResponseEntity.internalServerError().body(apiResponse);
