@@ -5,8 +5,11 @@
  */
 package vantruong.iuh.service;
 
-import org.springframework.stereotype.Service;
+import com.nimbusds.jose.JOSEException;
 import vantruong.iuh.dto.request.AuthenticationRequest;
+import vantruong.iuh.dto.request.IntrospectRequest;
+import vantruong.iuh.dto.response.AuthenticationResponse;
+import vantruong.iuh.dto.response.IntrospectResponse;
 
 /*
  * @description
@@ -16,5 +19,7 @@ import vantruong.iuh.dto.request.AuthenticationRequest;
  */
 
 public interface AuthenticationService {
-    boolean authenticate(AuthenticationRequest request);
+    AuthenticationResponse authenticate(AuthenticationRequest request);
+
+    IntrospectResponse introspect(IntrospectRequest request) throws JOSEException;
 }

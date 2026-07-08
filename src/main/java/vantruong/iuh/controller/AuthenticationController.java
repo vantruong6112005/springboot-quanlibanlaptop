@@ -6,6 +6,7 @@
 package vantruong.iuh.controller;
 
 
+import com.nimbusds.jose.JOSEException;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vantruong.iuh.dto.request.AuthenticationRequest;
+import vantruong.iuh.dto.request.IntrospectRequest;
 import vantruong.iuh.dto.response.ApiResponse;
 import vantruong.iuh.dto.response.AuthenticationResponse;
+import vantruong.iuh.dto.response.IntrospectResponse;
 import vantruong.iuh.service.AuthenticationService;
 
 /*
@@ -32,14 +35,20 @@ public class AuthenticationController {
     @PostMapping("/login")
     ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
         // Implementation for login logic
-        boolean isAuthenticated = authenticationService.authenticate(request);
-        AuthenticationResponse response = AuthenticationResponse.builder()
-                .authenticated(isAuthenticated)
-                .build();
+        var isAuthenticated = authenticationService.authenticate(request);
+
         return ApiResponse.<AuthenticationResponse>builder()
                 // có thể có code 
-                .message(isAuthenticated ? "Login successful" : "Invalid credentials")
-                .data(response)
+                .data(isAuthenticated)
+                .build();
+    }
+    @PostMapping("/introspect")
+    ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request) throws JOSEException {
+        // Implementation for introspect logic
+        var introspectResponse = authenticationService.introspect(request);
+
+        return ApiResponse.<IntrospectResponse>builder()
+                .data(introspectResponse)
                 .build();
     }
 }

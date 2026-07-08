@@ -37,6 +37,7 @@ public enum ErrorCode implements BaseErrorCode {
     ORDER_NOT_FOUND("error.order_not_found", HttpStatus.NOT_FOUND),
     CART_NOT_FOUND("error.cart_not_found", HttpStatus.NOT_FOUND),
     CART_ITEM_NOT_FOUND("error.cart_item_not_found", HttpStatus.NOT_FOUND),
+   // UNAUTHENTICATED("error.unauthenticated", HttpStatus.UNAUTHORIZED),
     REVIEW_NOT_FOUND("error.review_not_found", HttpStatus.NOT_FOUND);
     private final String message;
     private final HttpStatusCode statusCode;
