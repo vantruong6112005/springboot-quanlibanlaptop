@@ -25,7 +25,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import vantruong.iuh.entity.RoleName;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -48,17 +51,30 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll() // Cho phép truy cập vào các endpoint được liệt kê mà không cần xác thực
+                .requestMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll()
+                .requestMatchers(HttpMethod.GET,"/user").hasAuthority(RoleName.ROLE_ADMIN.name())// Cho phép truy cập vào các endpoint được liệt kê mà không cần xác thực
                 .anyRequest().authenticated() // Yêu cầu xác thực cho tất cả các yêu cầu khác
         );
         http.oauth2ResourceServer(oauth2->
 
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecorder())));
+                oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(jwtDecorder())
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                ));
 
 
         http.csrf(AbstractHttpConfigurer::disable);
          // Vô hiệu hóa CSRF (Cross-Site Request Forgery) để đơn giản hóa việc kiểm tra
         return http.build();
+    }
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter(){
+         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+         return jwtAuthenticationConverter;
+
     }
     @Bean
     JwtDecoder jwtDecorder(){

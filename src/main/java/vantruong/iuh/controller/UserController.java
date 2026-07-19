@@ -7,6 +7,8 @@ package vantruong.iuh.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import vantruong.iuh.dto.request.UserCreationRequest;
 import vantruong.iuh.dto.request.UserUpdateRequest;
@@ -25,6 +27,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -39,6 +43,11 @@ public class UserController {
 
     @GetMapping
     public ApiResponse<List<UserResponse>> getAllUsers() {
+        var authenticate = SecurityContextHolder.getContext().getAuthentication();
+        log.info("username",authenticate.getName());
+        authenticate.getAuthorities().forEach(v->log.info(v.getAuthority()));
+
+
         return ApiResponse.<List<UserResponse>>builder()
                 .message("Fetched all users successfully")
                 .data(userService.getAllUsers())

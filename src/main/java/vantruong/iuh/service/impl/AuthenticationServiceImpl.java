@@ -11,6 +11,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import lombok.RequiredArgsConstructor;
 
 import lombok.experimental.NonFinal;
@@ -24,15 +25,20 @@ import vantruong.iuh.dto.request.AuthenticationRequest;
 import vantruong.iuh.dto.request.IntrospectRequest;
 import vantruong.iuh.dto.response.AuthenticationResponse;
 import vantruong.iuh.dto.response.IntrospectResponse;
+import vantruong.iuh.entity.RoleName;
+import vantruong.iuh.entity.User;
 import vantruong.iuh.exception.UnauthenticatedException;
 import vantruong.iuh.exception.UserNotFoundException;
 import vantruong.iuh.repository.UserRepository;
 import vantruong.iuh.service.AuthenticationService;
 
+import javax.management.relation.Role;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /*
  * @description
@@ -114,7 +120,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         // Tạo JWT Token nếu đăng nhập thành công
-        var token = generateToken(request.getUsername());
+        var token = generateToken(user);
 
         // Trả về kết quả xác thực
         return AuthenticationResponse.builder()
@@ -126,7 +132,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     /**
      * Sinh JWT Token
      */
-    private String generateToken(String username) {
+    private String generateToken(User user) {
 
         // Khai báo thuật toán ký HS512
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
@@ -134,7 +140,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // Khai báo các thông tin (claims) của JWT
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 // Người sở hữu token
-                .subject(username)
+                .subject(user.getUsername())
 
                 // Đơn vị phát hành token
                 .issuer("dev")
@@ -152,7 +158,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 )
 
                 // Custom Claim
-                .claim("customeClaim", "Custom")
+                .claim("scope", buildScope(user))
 
                 .build();
 
@@ -173,5 +179,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (JOSEException e) {
             throw new RuntimeException(e);
         }
+    }
+    private String buildScope(User user) {
+        if (CollectionUtils.isEmpty(user.getRoles())) {
+            return "";
+        }
+
+        return user.getRoles().stream()
+                // role.getName() lấy ra Enum RoleName, sau đó .name() chuyển Enum đó thành String
+                .map(role -> role.getName().name())
+                .collect(Collectors.joining(" "));
     }
 }

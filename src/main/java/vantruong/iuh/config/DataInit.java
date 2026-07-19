@@ -245,7 +245,7 @@ public class DataInit implements CommandLineRunner {
 
         users.put("admin", ensureUser(
                 "admin",
-                RAW_PASSWORD,
+                "admin123",
                 "admin@quanlisanpham.com",
                 "0900000001",
                 "Hà Nội",
