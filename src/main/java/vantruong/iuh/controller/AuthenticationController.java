@@ -51,4 +51,5 @@ public class AuthenticationController {
                 .data(introspectResponse)
                 .build();
     }
+
 }

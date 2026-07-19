@@ -25,6 +25,7 @@ import lombok.*;
 //==>Những field null sẽ bị ẩn
 
 public class ApiResponse <T>{
+    // code
     private String message;
     private T data;
 }
