@@ -1,6 +1,9 @@
 package vantruong.iuh.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -102,10 +106,11 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException());
         return userMapper.toUserResponse(user);
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
+        log.info("Fetching all users from the database");
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse)
                 .collect(Collectors.toList());
@@ -117,5 +122,13 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException();
         }
         userRepository.deleteById(id);
+    }
+@Override
+    public  UserResponse getCurrentUser(){
+
+        var context = SecurityContextHolder.getContext();
+        String username = context.getAuthentication().getName();
+        userRepository.findByUsername(username).orElseThrow(()->new UserNotFoundException());
+        return userMapper.toUserResponse(userRepository.findByUsername(username).get());
     }
 }

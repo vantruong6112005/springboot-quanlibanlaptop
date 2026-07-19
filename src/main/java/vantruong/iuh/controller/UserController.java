@@ -8,6 +8,7 @@ package vantruong.iuh.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import vantruong.iuh.dto.request.UserCreationRequest;
@@ -75,6 +76,13 @@ public class UserController {
         userService.deleteUser(id);
         return ApiResponse.<Void>builder()
                 .message("User has been deleted successfully")
+                .build();
+    }
+    @GetMapping("/info")
+    public ApiResponse<UserResponse> getCurrentUser() {
+        return ApiResponse.<UserResponse>builder()
+                .message("Fetched current user details successfully")
+                .data(userService.getCurrentUser())
                 .build();
     }
 }

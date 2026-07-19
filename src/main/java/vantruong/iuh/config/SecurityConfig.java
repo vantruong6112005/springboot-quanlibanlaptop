@@ -15,6 +15,7 @@ package vantruong.iuh.config;
 // vao spring security=>servlet application==>architecture
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,7 @@ import static org.springframework.security.config.annotation.web.configuration.O
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     private final String[] AUTH_WHITELIST = {
             "/users/**" ,
@@ -52,7 +54,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll()
-                .requestMatchers(HttpMethod.GET,"/user").hasAuthority(RoleName.ROLE_ADMIN.name())// Cho phép truy cập vào các endpoint được liệt kê mà không cần xác thực
+//                .requestMatchers(HttpMethod.GET,"/user").hasAuthority(RoleName.ROLE_ADMIN.name())// Cho phép truy cập vào các endpoint được liệt kê mà không cần xác thực
                 .anyRequest().authenticated() // Yêu cầu xác thực cho tất cả các yêu cầu khác
         );
         http.oauth2ResourceServer(oauth2->
@@ -70,7 +72,7 @@ public class SecurityConfig {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter(){
          JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
          JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
          jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
          return jwtAuthenticationConverter;
